@@ -3,7 +3,8 @@
 This repositry hold solutions for project-euler problems. As of now I would try to foucs on writing the solutions in php. 
 
 to run any of the solutions: 
-In terminal from the project root dirtory run this command
+
+In terminal from the project root directory run this command
 
 ```shell
 php php/problem_n.php
