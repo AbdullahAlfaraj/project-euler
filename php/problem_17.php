@@ -154,7 +154,7 @@ for($i = $from; $i <= $to; ++$i)
 	$names = [];
 	$name = nameNum($digits,$position,$names,"");
 	$all_names .= $name;
-	echo "$i => $name \n";
+	// echo "$i => $name \n";
 }
 
 echo "the number of letters: ".strlen($all_names)."\n";
