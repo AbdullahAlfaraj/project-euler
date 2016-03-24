@@ -1,6 +1,6 @@
 <?php
 /*
-Problem:
+Problem: Maximum Path Sum I
 
 
 By starting at the top of the triangle below and moving to adjacent numbers on the row below, the maximum total from top to bottom is 23.
@@ -41,7 +41,7 @@ by Abdullah Alfaraj
 */
 
 
-
+//every element in the triangle has two parents and two children
 class TriElement
 {
 	public $value = 0;
@@ -70,6 +70,7 @@ class TriElement
 
 	}
 
+	//attach the children
 	function addChild($left_child_ref,$right_child_ref)
 	{
 		if($left_child_ref != null)
@@ -84,12 +85,12 @@ class TriElement
 			
 		}
 	}
-
+	//update the value with adding the value of the greatest parrent 
 	public function updateValue(){
 
 		$this->value += (int)max($this->left_parent_value,$this->right_parent_value);
 	}
-
+	//send the value to its children
 	public function sendValue()
 	{
 		$this->updateValue();
@@ -107,6 +108,80 @@ class TriElement
 	}
 
 }
+
+
+//convert every element in the 2d array of triangle to a node in a graph.
+//each node has two parrents and two children.
+//root node has two children but no parrents.
+function iniTriGraph($tri_A)
+{
+	$tri_graph = [];
+
+	//create the nodes of the graph
+	foreach($tri_A as $i => $row)
+	{
+		$tri_graph[$i] =[];
+		foreach($row as $j=> $val)
+		{
+			$tri_graph[$i][$j] = new TriElement($val,null,null); 
+
+		}
+
+	}
+
+	//assign the parents and children relationship to each node 
+	for($i = 0; $i < count($tri_graph)-1;++$i)
+	{
+		$row = $tri_graph[$i];
+		$next_row = $tri_graph[$i+1];
+		for($j = 0; $j < count($row);++$j)
+		{
+			$left_child = $next_row[$j];
+			$right_child = $next_row[$j+1];
+			$row[$j]->addChild($left_child,$right_child);
+
+		}
+
+	}
+
+	return $tri_graph;
+
+
+}
+
+//calculate the maximum route value 
+function maxRouteVal($tri_graph)
+{
+	$maxVal = 0;
+	for($i = 0; $i < count($tri_graph);++$i)
+	{
+		$row = $tri_graph[$i];
+
+		for($j = 0; $j < count($row);++$j)
+		{
+			$currVal = $row[$j]->sendValue();
+			if($currVal > $maxVal)
+				$maxVal = $currVal;			
+		}
+
+	}
+
+	return $maxVal;
+
+}
+
+//create a 2d triangle array from a string
+function initTriArray($tri_str)
+{
+	$tri_A = explode("\n",$tri_str);
+	for($i = 0; $i < count($tri_A); ++$i)
+	{
+		$tri_A[$i] = explode(" ",$tri_A[$i]); 
+
+	}
+	return $tri_A;
+}
+
 $tri_str = 
 "75
 95 64
@@ -129,142 +204,9 @@ $tri_str =
 // 2 4 6
 // 8 5 9 3";
 
-function iniTriGraph($root,$tri_A)
-{
-	$tri_graph = [];
 
-	//create the nodes
-	foreach($tri_A as $i => $row)
-	{
-		$tri_graph[$i] =[];
-		foreach($row as $j=> $val)
-		{
-			$tri_graph[$i][$j] = new TriElement($val,null,null); 
-
-		}
-
-	}
-
-	//assign the parents to each node 
-	for($i = 0; $i < count($tri_graph)-1;++$i)
-	{
-		$row = $tri_graph[$i];
-		$next_row = $tri_graph[$i+1];
-		for($j = 0; $j < count($row);++$j)
-		{
-			$left_child = $next_row[$j];
-			$right_child = $next_row[$j+1];
-			$row[$j]->addChild($left_child,$right_child);
-
-		}
-
-	}
-
-	$maxVal = 0;
-	for($i = 0; $i < count($tri_graph);++$i)
-	{
-		$row = $tri_graph[$i];
-
-		for($j = 0; $j < count($row);++$j)
-		{
-
-			$tempVal = $row[$j]->sendValue();
-			if($tempVal > $maxVal)
-				$maxVal = $tempVal;
-			echo "tempVal $tempVal\n";
-		}
-
-	}
-
-	// echo print_r($tri_graph[0][0]) ."\n";
-
-	echo "maxVal: $maxVal \n";
-	//echo "graph:".print_r($tri_graph)."\n";
-	// for($i = 1; $i < count($tri_A) - 1;++$i)
-	// {
-	// 	$row = $tri_A[$i];
-	// 	//for every value in the row we create an element 
-	// 	for($j = 0; $j < count($row); ++$j)
-	// 	{
-	// 		new TriElement($row[$j],$left_parent_ref,$right_parent_ref);
-	// 	}
-
-
-	// }
-}
-function initTriArray($tri_str)
-{
-	$tri_A = explode("\n",$tri_str);
-	for($i = 0; $i < count($tri_A); ++$i)
-	{
-		$tri_A[$i] = explode(" ",$tri_A[$i]); 
-
-	}
-	return $tri_A;
-}
 $tri_A = initTriArray($tri_str);
 
-$root = new TriElement($tri_A[0][0],null,null);//root has no parents
-$child = new TriElement(5,$root,null);
-
-$root->right_child_ref->value = 7;
-
-
-echo "root->child->value: ". $root->right_child_ref->value."\n";
-echo "child->value: ". $child->value."\n";
-
-iniTriGraph($root,$tri_A);
-
-// function maxRouteValue(&$tri_A,$rowIdx = 0)
-// {
-
-
-// 	if($rowIdx == count($tri_A))
-// 		return max($tri_A[$rowIdx-1]);//return the max value in the last row
-
-// 	if($rowIdx == 0)
-// 	{
-// 		$tri_A[1][0] += $tri_A[0][0];
-// 		$tri_A[1][1] += $tri_A[0][0];  
-// 		maxRouteValue($tri_A,$rowIdx+1);
-// 	}
-
-
-// 	$row = $tri_A[$rowIdx];
-// 	for($i = 0;$i < count($row)-1)
-// 	{
-// 		$tri_A[$rowIdx+1][$i]
-// 		maxRouteValue($tri_A)
-// 	}
-
-// 	$tri_A[$rowIdx];
-
-
-
-
-// }
-
-function maxRouteValue($tri_A,$rowIdx = 0)
-{
-
-	$max_vals = [];
-	if($rowIdx == (count($tri_A) -1))//if this is the last row , return the max value
-	return max($tri_A[$rowIdx]);
-	else
-	{
-		for($i = 0; $i < count($tri_A[$rowIdx]); ++$i){
-			$tri_A[$rowIdx+1][$i] += $tri_A[$rowIdx][$i];
-			$tri_A[$rowIdx+1][$i+1] += $tri_A[$rowIdx][$i];
-
-			$max_vals[] = maxRouteValue($tri_A,$rowIdx+1);
-			$tri_A[$rowIdx+1][$i] -= $tri_A[$rowIdx][$i];
-			$tri_A[$rowIdx+1][$i+1] -= $tri_A[$rowIdx][$i];
-		}
-	}
-
-	return max($max_vals);
-}
-// $max_routes_val = maxRouteValue($tri_A,0);
-// echo "max_routes_val: $max_routes_val \n";
-// echo print_r($tri_A) ."\n"; 
-// echo "tri_str\n $tri_str \n";
+$tri_graph = iniTriGraph($tri_A);
+$maxVal = maxRouteVal($tri_graph);
+echo "maximum route value: $maxVal \n";  

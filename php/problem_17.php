@@ -16,6 +16,8 @@ https://projecteuler.net/problem=17
 https://github.com/AbdullahAlfaraj/project-euler/
 by Abdullah Alfaraj
 */
+
+
 $basic = [ 
 0 => "zero",
 1 =>"one",
@@ -47,7 +49,8 @@ $basic = [
 90 => "nighty"];
 
 
-function nameNum($digits,$position,&$names,$attach)
+//recursively name the digits
+function nameNumRec($digits,$position,&$names =[],$attach = "")
 {
 	$basic = $GLOBALS['basic'];
 
@@ -55,107 +58,103 @@ function nameNum($digits,$position,&$names,$attach)
 	if($position < 0)
 		return join("",$names);//return a name as a string with no spaces
 
+	//the current digit index, $idx start counting from left.
+	//where $position start counting from right.
 	$idx = (count($digits)-1) - $position;
-	$step = 1;
-	$digit = $digits[$idx];
+	$step = 1;//how many digit we will read at once
+	$digit = $digits[$idx];//the current digit we are starting from in the number
 
+	//$index is the key we will use to check if the number is in the basic names array 
 	$index = (int)($digit * pow(10,$position));
-	$last_attach = $attach; 
-	$final_index = "";
+	$last_attach = $attach;//some time we need special words like "and" to concatenate numbers with
+	
 
 
 	
-	//current digit is zero
+	//current digit is zero,then ignore it
 	if($digits[$idx] == 0)
-		return nameNum($digits,$position-$step,$names,$attach);
+		return nameNumRec($digits,$position-$step,$names,$attach);
 
-	if($position == 3)
-	{
-		$key = $index;
-		$step = 1;
-	}
-	elseif($position == 2){
-		$key = $index;
-		$step = 1;
-	}
-	elseif($position == 1){
-		$key = $index + $digits[$idx+1];
+
+
+	if($position == 1){
+		$index = $index + $digits[$idx+1];//we will read two digits at the same time
 		$step = 2;
 	}
-	elseif($position == 0){
-		$key = $index ;
-		$step = 1;
-	}
-
 	
-	// echo "position: $position, index: $index, idx: $idx, key: $key \n";
-
-
-
 
 	
 	//if the name is stored in $basic, then use it 
-	if(isset($basic[$key]))
+	if(isset($basic[$index]))
 	{
-		$name = $basic[$key];
-		// $step =  $index >=10 &&< $index <100 ?1:
+		$name = $basic[$index];
+
 	}
-	else //make the name 
+	else //construct the name from it basic components 
 	{
-		if($key >= 1000)//name = "digit-name thousand"
+		if($index >= 1000)//name = "digit-name thousand"
 		{
 
-
 			$name = $basic[$digit] . "thousand";
-			// $step = 1;
 			$attach = "and";
 		}
-		elseif ($key >=100){
+		elseif ($index >=100){
 			$name = $basic[$digit] ."hundred";
-			// $step = 1;
 			$attach = "and";
 		}
-		elseif($key >=20)
+		elseif($index >=20)//two-digits combinations
 		{
 			
 			$next_digit = $digits[$idx+1];
 			$name = $basic[$digit*10] .$basic[$next_digit];
-			// $step = 2;
+			
 			$attach = "";
 		}
-		elseif ($key >= 10){
-			$attach = "";
-			$name = $basic[$key] ."teen";
-			// $step = 2;
-			$attach = "";
-			// return $basic[$digit*10] ."teen";
-		}
-
-
-
 
 	}
 
 	
 	$names[] = $last_attach.$name;
 
-	return nameNum($digits,$position-$step,$names,$attach);
+	return nameNumRec($digits,$position-$step,$names,$attach);
 }
 
-
-$all_names = "";
-$from = 1;
-$to = 1000;
-for($i = $from; $i <= $to; ++$i)
+//return the name of the number
+function nameNum($n)
 {
-	$n = $i;
+	
+	//convert from number to array of digits
 	$digits = str_split($n);
+	//this is the position of the first digit on the left
+	//single digit numbers has position equal to zero. 
+	
 	$position = count($digits)-1;
-	$names = [];
-	$name = nameNum($digits,$position,$names,"");
-	$all_names .= $name;
-	// echo "$i => $name \n";
+	// $names = [];
+	// return nameNumRec($digits,$position,$names,"");
+	return nameNumRec($digits,$position);
+
 }
 
-echo "the number of letters: ".strlen($all_names)."\n";
+
+//return the number of letters that are needed to write all numbers in range [$from,$to]
+function NumOfLettersInNumbers($from,$to)
+{
+	//store all names of the numbers in range [$frome,$to ].
+	//store the names within one string with no spaces.
+	$all_names = "";
+
+	for($i = $from; $i <= $to; ++$i)
+	{
+		$name = nameNum($i);
+
+		$all_names .= $name;
+	}
+
+	$namesLen = strlen($all_names);
+	return $namesLen;
+}
+
+
+$namesLen = NumOfLettersInNumbers(1,1000);
+echo "the number of letters used: ".$namesLen."\n";
 

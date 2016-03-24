@@ -41,7 +41,7 @@ $Days = [
 12 => 31
 ];
 
-
+//test if a year is a leap year or not.
 function isLeapYear($year)
 {
 	//if $year is  a century check if divisble by 400 
@@ -68,7 +68,8 @@ function daysInMonth($month,$year)
 }
 
 
-
+//increment the current data by x number of days,
+//and return the new data as [day,month,year].
 function newDate($day,$month,$year,$plus_dyas)
 {
 	$new_day = $day + $plus_dyas;
@@ -87,22 +88,24 @@ function newDate($day,$month,$year,$plus_dyas)
 		} 
 	}
 	
-
 	return [$new_day,$new_month,$new_year];
 }
-//return how many sundays on first of the month
+
+//return how many sundays on 1st of the month
 function sundaysOnfirst($startY,$endY){
 
 	$sundays = 0;
-	//first sunday we know of since 1st jan 1900 is monday
+	//since 1st jan 1900 is monday
+	//first sunday we know of is 6th jan 1900.
 	$day = 6;
 	$month = 1;
 	$year = 1900;
 
-
-	while($year <= 2000)
+	//we will fisit all sundays and only count the ones start at 1st day of a month
+	//don't count any sunday before the year $startY or after $endY
+	while($year <= $endY)
 	{
-		if($day == 1 && $year > 1900)
+		if($day == 1 && $year >= $startY)
 			$sundays += 1;
 		
 
@@ -120,4 +123,5 @@ function sundaysOnfirst($startY,$endY){
 $startY = 1901;
 $endY = 2000;
 
-echo "number of sundays on first day of the month in years[$startY,$endY]: ".sundaysOnfirst($startY,$endY) . "\n";
+echo "number of sundays on first day of the month in years[$startY,$endY]: ";
+echo sundaysOnfirst($startY,$endY) . "\n";

@@ -25,11 +25,7 @@ https://github.com/AbdullahAlfaraj/project-euler/
 by Abdullah Alfaraj
 */
 
-$filename = "../data/p067_triangle.txt";
-
-$file = fopen($filename,"r") or die("Unable to open file!");
-$tri_str = fread($file,filesize($filename));
-
+//every element in the triangle has two parents and two children
 class TriElement
 {
 	public $value = 0;
@@ -58,6 +54,7 @@ class TriElement
 
 	}
 
+	//attach the children
 	function addChild($left_child_ref,$right_child_ref)
 	{
 		if($left_child_ref != null)
@@ -72,12 +69,12 @@ class TriElement
 			
 		}
 	}
-
+	//update the value with adding the value of the greatest parrent 
 	public function updateValue(){
 
 		$this->value += (int)max($this->left_parent_value,$this->right_parent_value);
 	}
-
+	//send the value to its children
 	public function sendValue()
 	{
 		$this->updateValue();
@@ -97,11 +94,14 @@ class TriElement
 }
 
 
-function iniTriGraph($root,$tri_A)
+//convert every element in the 2d array of triangle to a node in a graph.
+//each node has two parrents and two children.
+//root node has two children but no parrents.
+function iniTriGraph($tri_A)
 {
 	$tri_graph = [];
 
-	//create the nodes
+	//create the nodes of the graph
 	foreach($tri_A as $i => $row)
 	{
 		$tri_graph[$i] =[];
@@ -113,7 +113,7 @@ function iniTriGraph($root,$tri_A)
 
 	}
 
-	//assign the parents to each node 
+	//assign the parents and children relationship to each node 
 	for($i = 0; $i < count($tri_graph)-1;++$i)
 	{
 		$row = $tri_graph[$i];
@@ -128,6 +128,14 @@ function iniTriGraph($root,$tri_A)
 
 	}
 
+	return $tri_graph;
+
+
+}
+
+//calculate the maximum route value 
+function maxRouteVal($tri_graph)
+{
 	$maxVal = 0;
 	for($i = 0; $i < count($tri_graph);++$i)
 	{
@@ -135,31 +143,18 @@ function iniTriGraph($root,$tri_A)
 
 		for($j = 0; $j < count($row);++$j)
 		{
-
-			$tempVal = $row[$j]->sendValue();
-			if($tempVal > $maxVal)
-				$maxVal = $tempVal;
-			echo "tempVal $tempVal\n";
+			$currVal = $row[$j]->sendValue();
+			if($currVal > $maxVal)
+				$maxVal = $currVal;			
 		}
 
 	}
 
-	// echo print_r($tri_graph[0][0]) ."\n";
+	return $maxVal;
 
-	echo "maxVal: $maxVal \n";
-	//echo "graph:".print_r($tri_graph)."\n";
-	// for($i = 1; $i < count($tri_A) - 1;++$i)
-	// {
-	// 	$row = $tri_A[$i];
-	// 	//for every value in the row we create an element 
-	// 	for($j = 0; $j < count($row); ++$j)
-	// 	{
-	// 		new TriElement($row[$j],$left_parent_ref,$right_parent_ref);
-	// 	}
-
-
-	// }
 }
+
+//create a 2d triangle array from a string
 function initTriArray($tri_str)
 {
 	$tri_A = explode("\n",$tri_str);
@@ -171,6 +166,20 @@ function initTriArray($tri_str)
 	return $tri_A;
 }
 
+
+//read the triangle date from a file,
+// and store it as a string.
+$filename = "../data/p067_triangle.txt";
+
+$file = fopen($filename,"r") or die("Unable to open file!");
+$tri_str = fread($file,filesize($filename));
+
+
 $tri_A = initTriArray($tri_str);
 
-iniTriGraph($root,$tri_A);
+$tri_graph = iniTriGraph($tri_A);
+$maxVal = maxRouteVal($tri_graph);
+echo "maximum route value: $maxVal \n";  
+
+
+
